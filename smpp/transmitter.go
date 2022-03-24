@@ -41,6 +41,7 @@ type Transmitter struct {
 	BindInterval       time.Duration // Binding retry interval
 	TLS                *tls.Config   // TLS client settings, optional.
 	RateLimiter        RateLimiter   // Rate limiter, optional.
+	ObseveEnquireLink  func(float64) // Include metrics
 	WindowSize         uint
 	rMutex             sync.Mutex
 	r                  *rand.Rand
@@ -87,6 +88,7 @@ func (t *Transmitter) Bind() <-chan ConnStatus {
 		WindowSize:         t.WindowSize,
 		RateLimiter:        t.RateLimiter,
 		BindInterval:       t.BindInterval,
+		ObseveEnquireLink:  t.ObseveEnquireLink,
 	}
 	t.cl.client = c
 	c.init()
