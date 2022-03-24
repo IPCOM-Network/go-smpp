@@ -29,7 +29,7 @@ type Receiver struct {
 	TLS                  *tls.Config
 	Handler              HandlerFunc
 	SkipAutoRespondIDs   []pdu.ID
-	ObseveEnquireLink    func(float32)
+	ObseveEnquireLink    func(float64)
 	chanClose            chan struct{}
 
 	// struct which holds the map of MergeHolders for the merging of the long incoming messages.
