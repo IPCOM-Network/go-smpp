@@ -29,8 +29,8 @@ type Receiver struct {
 	TLS                  *tls.Config
 	Handler              HandlerFunc
 	SkipAutoRespondIDs   []pdu.ID
-
-	chanClose chan struct{}
+	ObseveEnquireLink    func(float32)
+	chanClose            chan struct{}
 
 	// struct which holds the map of MergeHolders for the merging of the long incoming messages.
 	// It is used only if the incoming PDU holds UDH data and Receiver has MergeInterval > 0.
@@ -86,6 +86,7 @@ func (r *Receiver) Bind() <-chan ConnStatus {
 		Status:             make(chan ConnStatus, 1),
 		BindFunc:           r.bindFunc,
 		BindInterval:       r.BindInterval,
+		ObseveEnquireLink:  r.ObseveEnquireLink,
 	}
 	r.cl.client = c
 

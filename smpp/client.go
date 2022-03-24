@@ -14,7 +14,6 @@ import (
 
 	"github.com/fiorix/go-smpp/smpp/pdu"
 	"github.com/fiorix/go-smpp/smpp/pdu/pdufield"
-	"github.com/prometheus/client_golang/prometheus"
 )
 
 // ConnStatus is an abstract interface for a connection status change.
@@ -48,8 +47,6 @@ var connStatusText = map[ConnStatusID]string{
 	ConnectionFailed: "Connection failed",
 	BindFailed:       "Bind failed",
 }
-
-var EnquireLinkMetric prometheus.HistogramVec
 
 // String implements the Stringer interface.
 func (cs ConnStatusID) String() string {
@@ -95,7 +92,7 @@ type client struct {
 	BindInterval       time.Duration
 	WindowSize         uint
 	RateLimiter        RateLimiter
-
+	ObseveEnquireLink  func(float64)
 	// internal stuff.
 	inbox chan pdu.Body
 	conn  *connSwitch
@@ -212,7 +209,11 @@ func (c *client) enquireLink(stop chan struct{}) {
 
 func (c *client) updateEliTime() {
 	c.eliMtx.Lock()
-	EnquireLinkMetric.WithLabelValues(c.Addr).Observe(10)
+	if c.ObseveEnquireLink != nil {
+		ts := time.Since(c.eliTime).Milliseconds()
+		c.ObseveEnquireLink(float64(ts))
+	}
+
 	c.eliTime = time.Now()
 	c.eliMtx.Unlock()
 }
